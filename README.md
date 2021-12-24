@@ -5,6 +5,8 @@ There is two scripts in DLL and Excel file:
 1) Find coordiantes (lat & lon) of the address (cell value is an address) with OSM RU AP
 2) Find length in meters between two points (cell value is coordinates) in DLL method
 
+## Библиотека внешний фукций для вызова с помощью макросов в Excel
+
 Данный скрипт (макрос) в файле Excel и библиотека могут:
 1) Искать координаты для заданных в ячейках адресов и возвращать эти координаты как содержимое ячеек (по данным OSM RU)
 2) Рассчитывать расстояние между двумя точками (точка это координаты в ячейке) по прямой
