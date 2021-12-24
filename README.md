@@ -1,4 +1,4 @@
-# DLL-for-EXCEL-Macros
+# DLL Library for EXCEL Macros
 
 C# DLL for use in Excel Macros 
 There is two scripts in DLL and Excel file:
@@ -7,7 +7,7 @@ There is two scripts in DLL and Excel file:
 
 [DLL & Excel Macro](https://github.com/dkxce/DLL-for-EXCEL-Macros/tree/main/debug)
 
-## Библиотека внешний фукций для вызова с помощью макросов в Excel
+## Библиотека внешний функций для вызова с помощью макросов в Excel
 
 Данный скрипт (макрос) в файле Excel и библиотека могут:
 1) Искать координаты для заданных в ячейках адресов и возвращать эти координаты как содержимое ячеек (по данным OSM RU)
