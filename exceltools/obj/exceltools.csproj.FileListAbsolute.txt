@@ -1,0 +1,16 @@
+C:\Downloads\CD-REC\TEST\ExcelDLL\Debug\exceltools.dll
+C:\Downloads\CD-REC\TEST\ExcelDLL\Debug\exceltools.pdb
+C:\Downloads\CD-REC\TEST\ExcelDLL\injlib\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Downloads\CD-REC\TEST\ExcelDLL\injlib\obj\x86\Debug\exceltools.dll
+C:\Downloads\CD-REC\TEST\ExcelDLL\injlib\obj\x86\Debug\exceltools.pdb
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\Debug\ResolveAssemblyReference.cache
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\Debug\exceltools.dll
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\Debug\exceltools.pdb
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x86\Debug\exceltools.dll
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x86\Debug\exceltools.pdb
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\bin\Debug\x64\exceltools.dll
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\bin\Debug\x64\exceltools.pdb
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x64\Debug\ResolveAssemblyReference.cache
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x64\Debug\exceltools.dll
+C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x64\Debug\exceltools.pdb
