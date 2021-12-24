@@ -5,6 +5,11 @@ There is two scripts in DLL and Excel file:
 1) Find coordiantes (lat & lon) of the address (cell value is an address) with OSM RU AP
 2) Find length in meters between two points (cell value is coordinates) in DLL method
 
+This is a C# library & Excel VB Macro for Calling dll functions. No OLE or ActiveX is used.  
+Can be used to create custom functions in external dll with C# and call it from Excel with Macros.   
+Functions calls with cdecl using standard WinAPI. So you must export them in your C# code.   
+Repository contains full working example. MSVS solutions, Excel file and Macro. 
+
 [DLL & Excel Macro](https://github.com/dkxce/DLL-for-EXCEL-Macros/tree/main/debug)
 
 ## Библиотека внешний функций для вызова с помощью макросов в Excel
