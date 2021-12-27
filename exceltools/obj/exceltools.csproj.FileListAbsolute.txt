@@ -14,3 +14,11 @@ C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\bin\Debug\x64\exceltools.pdb
 C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x64\Debug\ResolveAssemblyReference.cache
 C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x64\Debug\exceltools.dll
 C:\Downloads\CD-REC\TEST\ExcelDLL\exceltools\obj\x64\Debug\exceltools.pdb
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\Debug\exceltools.dll
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\Debug\exceltools.pdb
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\exceltools\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\exceltools\obj\x86\Debug\exceltools.dll
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\exceltools\obj\x86\Debug\exceltools.pdb
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\exceltools\obj\x64\Debug\ResolveAssemblyReference.cache
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\exceltools\obj\x64\Debug\exceltools.dll
+D:\PROJECTS\Планирование\20XX Template\Soft (Win+Android)\MY KMZ KML TOOLS\ExcelDLL\exceltools\obj\x64\Debug\exceltools.pdb

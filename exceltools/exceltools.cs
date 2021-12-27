@@ -6,6 +6,9 @@
 //
 // Это библиотека C#, которая экспортирует функции для макросов в Excel
 //
+// VBA & DLL
+//   http://basic.ucoz.net/publ/vyzov_funkcij_po_ukazatelju_v_visual_basic_chast_2/1-1-0-33
+//
 
 using System;
 using System.IO;
@@ -21,7 +24,7 @@ namespace exceltools
 {
     internal static class UnmanagedExports
     {
-        private const string LIBNAME = "Excel Tools by Milok Zbrozek <milokz@gmail.com>";
+        private static string LIBNAME = "Excel Tools by Milok Zbrozek <milokz@gmail.com> " + (IntPtr.Size == 4 ? "x86" : "x64") + " v21.12.27.7";
         private static string CALLER = "Unknown";
 
         #region __cdelc
@@ -64,6 +67,9 @@ namespace exceltools
 
         #region Excel Methods
 
+        /// <summary>
+        ///     Exported Method Names For Excel
+        /// </summary>
         private static string[] methods = new string[]
             {
                 "GetLibraryName", // 0
@@ -77,58 +83,79 @@ namespace exceltools
                 "GetBounds", // 8
                 "RunScript", // 9
                 "GetLibraryScripts", // 10
-                "GetLibraryScriptName" // 11
+                "GetLibraryScriptName", // 11
+                "GetChangedCells", // 12
+                "GetFilledCellByNum", // 13
+                "GetChangedCellByNum", // 14
+                "SelectAndRunScript", // 15
+                "GetMinMax", // 16
+                "GetFilledRange", // 17
+                "GetChangedRange" // 18
             };
 
+        /// <summary>
+        ///     Exported Script Names For Excel
+        /// </summary>
         private static string[] scripts = new string[]
             {
                 "SearchAddressInOSM", // 0                
                 "GetLengthBetween2Points" // 1
             };
 
+        /// <summary>
+        ///     Excel Simple Active Sheet Model
+        /// </summary>
+        private static ExcelData exd = new ExcelData();       
 
-
-        private static ExcelData exd = new ExcelData();
-
+        /// <summary>
+        ///     Get Library Name
+        /// </summary>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>string length</returns>
         [DllExport("GetLibraryName", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        static string GetLibraryName()
+        public static int GetLibraryName(IntPtr ptr) // METHOD 0
         {
-            return LIBNAME;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(LIBNAME);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return LIBNAME.Length;
         }
 
+        /// <summary>
+        ///     Get Library Exported Methods Count For Excel
+        /// </summary>
+        /// <returns>Count</returns>
         [DllExport("GetLibraryMethods", CallingConvention = CallingConvention.Cdecl)]
-        static int GetLibraryMethods()
+        public static int GetLibraryMethods() // METHOD 1
         {
             return methods.Length;
         }
 
+        /// <summary>
+        ///     Get Exported Library Method Name For Excel By Number (zero-indexed)
+        /// </summary>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <param name="numberFromZero">index (zero-indexed)</param>
+        /// <returns>string length</returns>
         [DllExport("GetLibraryMethodName", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        static string GetLibraryMethodName(int numberFromZero)
+        public static int GetLibraryMethodName(IntPtr ptr, int numberFromZero) // METHOD 2
         {
-            if (numberFromZero < 0) return "";
-            if (numberFromZero >= methods.Length) return "";
-            return methods[numberFromZero];
+            if (numberFromZero < 0) return 0;
+            if (numberFromZero >= methods.Length) return 0;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(methods[numberFromZero]);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return methods[numberFromZero].Length;
         }
 
-        [DllExport("GetLibraryScripts", CallingConvention = CallingConvention.Cdecl)]
-        static int GetLibraryScripts()
-        {
-            return scripts.Length;
-        }
-
-        [DllExport("GetLibraryScriptName", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        static string GetLibraryScriptName(int numberFromZero)
-        {
-            if (numberFromZero < 0) return "";
-            if (numberFromZero >= scripts.Length) return "";
-            return scripts[numberFromZero];
-        }
-
+        /// <summary>
+        ///     Fill Cell From Excel
+        /// </summary>
+        /// <param name="row">Row</param>
+        /// <param name="col">Column</param>
+        /// <param name="value">Text Value of Cell (Pointer To Unicode String (max len: 65000))</param>
+        /// <param name="formula">FormulaR1C1 of Cell (Pointer To Unicode String (max len: 65000))</param>
+        /// <returns>zero</returns>
         [DllExport("PassCell", CallingConvention = CallingConvention.Cdecl)]
-        static int PassCell(int row, int col, [MarshalAs(UnmanagedType.AnsiBStr)] string value, [MarshalAs(UnmanagedType.AnsiBStr)] string formula)
+        public static int PassCell(int row, int col, [MarshalAs(UnmanagedType.BStr)] string value, [MarshalAs(UnmanagedType.BStr)] string formula)  // METHOD 3
         {
             if (row < 1) return -1;
             if (col < 1) return -1;
@@ -136,52 +163,285 @@ namespace exceltools
             return 0;
         }
 
+        /// <summary>
+        ///     Get Text Value of DLL Sheet Cell
+        /// </summary>
+        /// <param name="row">Row</param>
+        /// <param name="col">Column</param>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>text length</returns>
         [DllExport("GetCellValue", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        static string GetCellValue(int row, int col)
+        public static int GetCellValue(int row, int col, IntPtr ptr)  // METHOD 4
         {
-            if (row < 1) return "";
-            if (col < 1) return "";
-            return exd.Get((uint)row, (uint)col).value;
+            if (row < 1) return 0;
+            if (col < 1) return 0;
+            string val = exd.Get((uint)row, (uint)col).value;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(val);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return val.Length;
         }
 
+        /// <summary>
+        ///     Get FormulaR1C1 of DLL Sheet Cell
+        /// </summary>
+        /// <param name="row">Row</param>
+        /// <param name="col">Column</param>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>text length</returns>
         [DllExport("GetCellFormula", CallingConvention = CallingConvention.Cdecl)]
-        [return: MarshalAs(UnmanagedType.AnsiBStr)]
-        static string GetCellFormula(int row, int col)
+        public static int GetCellFormula(int row, int col, IntPtr ptr)  // METHOD 5
         {
-            if (row < 1) return "";
-            if (col < 1) return "";
-            return exd.Get((uint)row, (uint)col).formula;
+            if (row < 1) return 0;
+            if (col < 1) return 0;
+            string val = exd.Get((uint)row, (uint)col).formula;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(val);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return val.Length;
         }
 
+        /// <summary>
+        ///     Clear Sheet Data in DLL
+        /// </summary>
+        /// <returns>Count of cleared cells</returns>
         [DllExport("ClearData", CallingConvention = CallingConvention.Cdecl)]
-        static int ClearData()
+        public static int ClearData()  // METHOD 6
         {
-            int res = exd.Count;
+            int res = exd.FilledCount;
             exd.Clear();
             return res;
         }
 
+        /// <summary>
+        ///     Get count of filled cells in DLL
+        /// </summary>
+        /// <returns>count of filled cells</returns>
         [DllExport("GetFilledCells", CallingConvention = CallingConvention.Cdecl)]
-        static int GetFilledCells()
+        public static int GetFilledCells()  // METHOD 7
         {
-            return exd.Count;
+            return exd.FilledCount;
         }
 
+        /// <summary>
+        ///     Get Bounds of filled cells in DLL (0 - MinRow, 1 - MaxRow, 2 - MinCol, 3 - MaxCol)
+        /// </summary>
+        /// <param name="index">0 - MinRow, 1 - MaxRow, 2 - MinCol, 3 - MaxCol</param>
+        /// <returns>value</returns>
         [DllExport("GetBounds", CallingConvention = CallingConvention.Cdecl)]
-        static int GetBounds(int index)
+        public static int GetBounds(int index)   // METHOD 8
         {
             if (index < 0) return 0;
             if (index >= 4) return 0;
-            return exd.GetBounds()[index];
+            return exd.GetFilledBounds()[index];
         }
 
+        /// <summary>
+        ///     Run Script from DLL with Name
+        /// </summary>
+        /// <param name="methodName">name of the script</param>
+        /// <returns>count of computed cells</returns>
         [DllExport("RunScript", CallingConvention = CallingConvention.Cdecl)]
-        static int RunScript([MarshalAs(UnmanagedType.AnsiBStr)] string methodName)
+        public static int RunScript([MarshalAs(UnmanagedType.BStr)] string methodName)   // METHOD 9
+        {
+            return RunScriptInt(methodName);
+        }
+
+        /// <summary>
+        ///     Get Library Excel Scripts Count
+        /// </summary>
+        /// <returns>count of library scripts for Excel</returns>
+        [DllExport("GetLibraryScripts", CallingConvention = CallingConvention.Cdecl)]
+        public static int GetLibraryScripts()  // METHOD 10
+        {
+            return scripts.Length;
+        }
+
+        /// <summary>
+        ///     Get Library Excel Script Name by index (zero-indexed)
+        /// </summary>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <param name="numberFromZero">script index (zero-indexed)</param>
+        /// <returns>string length</returns>
+        [DllExport("GetLibraryScriptName", CallingConvention = CallingConvention.Cdecl)]
+        public static int GetLibraryScriptName(IntPtr ptr, int numberFromZero)  // METHOD 11
+        {
+            if (numberFromZero < 0) return 0;
+            if (numberFromZero >= scripts.Length) return 0;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(scripts[numberFromZero]);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return scripts[numberFromZero].Length;
+        }
+
+        /// <summary>
+        ///     Get Last Changed Cells Count by Macro or Script
+        /// </summary>
+        /// <returns>count of changed cells</returns>
+        [DllExport("GetChangedCells", CallingConvention = CallingConvention.Cdecl)]
+        public static int GetChangedCells()   // METHOD 12
+        {
+            return exd.ChangedCount;
+        }        
+
+        /// <summary>
+        ///     Get Filled Cell Row, Column & FormulaR1C1 by index (zero-indexed)
+        /// </summary>
+        /// <param name="index">index (zero-indexed)</param>
+        /// <param name="rc">RCItem Struct or Array</param>
+        /// <param name="elSize">size of RCItem / 2</param>
+        /// <param name="ptrs">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>string length</returns>
+        [DllExport("GetFilledCellByNum", CallingConvention = CallingConvention.Cdecl)]
+        public unsafe static int GetFilledCellByNum(int index, int elSize, IntPtr rc, IntPtr ptrs)   // METHOD 13
+        {
+            ExcelData.RCItem res = exd.GetFilled(index);
+            if (res == null) res = new ExcelData.RCItem(0, 0);
+
+            if (elSize == 4)
+            {
+                int* ptr = (int*)rc;
+                *ptr = res.row;
+                ptr++;
+                *ptr = res.col;
+            }
+            else if (elSize == 8)
+            {
+                long* ptr = (long*)rc;
+                *ptr = res.row;
+                ptr++;
+                *ptr = res.col;
+            };
+            string val = exd.Get(res.row, res.col).formula;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(val);
+            Marshal.Copy(b, 0, ptrs, b.Length);
+            return val.Length;
+        }
+
+        /// <summary>
+        ///     Get Last Changed Cells by Macro or Script: Cell Row, Column & FormulaR1C1 by index (zero-indexed)
+        /// </summary>
+        /// <param name="index">index (zero-indexed)</param>
+        /// <param name="rc">RCItem Struct or Array</param>
+        /// <param name="elSize">size of RCItem / 2</param>
+        /// <param name="ptrs">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>string length</returns>
+        [DllExport("GetChangedCellByNum", CallingConvention = CallingConvention.Cdecl)]
+        public unsafe static int GetChangedCellByNum(int index, int elSize, IntPtr rc, IntPtr ptrs)   // METHOD 14
+        {
+            ExcelData.RCItem res = exd.GetChanged(index);
+            if (res == null) res = new ExcelData.RCItem(0, 0);
+
+            if (elSize == 4)
+            {
+                int* ptr = (int*)rc;
+                *ptr = res.row;
+                ptr++;
+                *ptr = res.col;
+            }
+            else if (elSize == 8)
+            {
+                long* ptr = (long*)rc;
+                *ptr = res.row;
+                ptr++;
+                *ptr = res.col;
+            };
+            string val = exd.Get(res.row, res.col).formula;
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(val);
+            Marshal.Copy(b, 0, ptrs, b.Length);
+            return val.Length;
+        }
+
+        /// <summary>
+        ///     Select Script And Run 
+        /// </summary>
+        /// <returns>count of computed cells</returns>
+        [DllExport("SelectAndRunScript", CallingConvention = CallingConvention.Cdecl)]
+        public static int SelectAndRunScript()   // METHOD 15
+        {
+            if (exd.FilledCount == 0)
+            {
+                MessageBox.Show("Необходимо выбрать хотя бы одну ячейку для выбора скрипта!", LIBNAME, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return 0;
+            };
+
+            int[] bounds = exd.GetChangedBounds();
+            string dRange = String.Format("{0}{1}:{2}{3}", ExcelData.RCItem.ColumnIndex(bounds[2]), bounds[0], ExcelData.RCItem.ColumnIndex(bounds[3]), bounds[1]);
+            
+            int sel = 0;
+            InputBox.defWidth = 700;
+            DialogResult dr = InputBox.Show(LIBNAME, "Выберите скрипт для запуска (к обработке " + exd.FilledCount.ToString() + " ячеек в диапазоне " + dRange + ") - всего (" + scripts.Length.ToString() + "):", scripts, ref sel);
+            if (dr != DialogResult.OK) return 0;
+            return RunScriptInt(scripts[sel]);            
+        }
+
+        /// <summary>
+        ///     Get Bounds of filled cells (0 - MinRow, 1 - MaxRow, 2 - MinCol, 3 - MaxCol)
+        /// </summary>
+        /// <param name="rect">0 - MinRow, 1 - MaxRow, 2 - MinCol, 3 - MaxCol</param>
+        /// <returns>value</returns>
+        [DllExport("GetMinMax", CallingConvention = CallingConvention.Cdecl)]
+        public unsafe static int GetMinMax(IntPtr rect, int elSize) // METHOD 16
+        {
+            int[] bounds = exd.GetFilledBounds();
+            if (elSize == 4)
+            {
+                int* ptr = (int*)rect;
+                *ptr = bounds[0]; ptr++;
+                *ptr = bounds[1]; ptr++;
+                *ptr = bounds[2]; ptr++;
+                *ptr = bounds[3];
+            }
+            else if (elSize == 8)
+            {
+                long* ptr = (long*)rect;
+                *ptr = bounds[0]; ptr++;
+                *ptr = bounds[1]; ptr++;
+                *ptr = bounds[2]; ptr++;
+                *ptr = bounds[3];
+            };
+            return 0;
+        }
+
+        /// <summary>
+        ///     Get Filled Range
+        /// </summary>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>string length</returns>
+        [DllExport("GetFilledRange", CallingConvention = CallingConvention.Cdecl)]
+        public static int GetFilledRange(IntPtr ptr) // METHOD 17
+        {
+            int[] bounds = exd.GetFilledBounds();
+            string val = String.Format("{0}{1}:{2}{3}", ExcelData.RCItem.ColumnIndex(bounds[2]), bounds[0], ExcelData.RCItem.ColumnIndex(bounds[3]), bounds[1]);
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(val);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return val.Length;
+        }
+
+        /// <summary>
+        ///     Get Changed Range
+        /// </summary>
+        /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
+        /// <returns>string length</returns>
+        [DllExport("GetChangedRange", CallingConvention = CallingConvention.Cdecl)]
+        public static int GetChangedRange(IntPtr ptr) // METHOD 17
+        {
+            int[] bounds = exd.GetChangedBounds();
+            string val = String.Format("{0}{1}:{2}{3}", ExcelData.RCItem.ColumnIndex(bounds[2]), bounds[0], ExcelData.RCItem.ColumnIndex(bounds[3]), bounds[1]);
+            byte[] b = System.Text.Encoding.Unicode.GetBytes(val);
+            Marshal.Copy(b, 0, ptr, b.Length);
+            return val.Length;
+        }
+
+        private static int RunScriptInt(string methodName)
         {
             if (String.IsNullOrEmpty(methodName)) return 0;
-            if (methodName == "SearchAddressInOSM") return UTILS_OSM.SearchAddressInOSM(ref exd);
-            if (methodName == "GetLengthBetween2Points") return UTILS_DKXCE.GetLengthBetween2Points(ref exd);
+            try
+            {
+                if (methodName == "SearchAddressInOSM") return UTILS_OSM.SearchAddressInOSM(ref exd);
+                if (methodName == "GetLengthBetween2Points") return UTILS_DKXCE.GetLengthBetween2Points(ref exd);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            };
             return 0;
         }
 
@@ -190,18 +450,28 @@ namespace exceltools
 
     public static class UTILS_OSM
     {
+        /// <summary>
+        ///     Search Address with OSM
+        /// </summary>
+        /// <param name="exd">Excel Data</param>
+        /// <returns>computed cells</returns>
         public static int SearchAddressInOSM(ref ExcelData exd)
         {
+            int toRead = exd.FilledCount;
+            if (toRead == 0) return 0;
+            exd.ResetChanged();
+
             KMZRebuilder.WaitingBoxForm wbf = new KMZRebuilder.WaitingBoxForm();
             wbf.Show("Script: SearchAddressInOSM", "Загрузка");
-            wbf.Text = String.Format("Обработано ячеек {0}/{1}", 0, exd.data.Count);
+            wbf.Text = String.Format("Обработано ячеек {0}/{1}", 0, exd.FilledCount);
 
             int processed = 0;
-            bool nodialogs = false;
-            foreach (KeyValuePair<ulong, ValueFormula> item in exd.data)
+            bool nodialogs = false;            
+            for (int i = 0; i < toRead; i++ )
             {
+                ExcelData.RCItem item = exd.GetFilled(i);
                 if (0 < processed++) System.Threading.Thread.Sleep(300); // avoid server exception
-                string val = item.Value.formula;
+                string val = exd.Get(item.row, item.col).formula;
                 if (!String.IsNullOrEmpty(val))
                 {
                     try
@@ -213,10 +483,10 @@ namespace exceltools
                         val = ex.Message;
                     };
                     if (!String.IsNullOrEmpty(val))
-                        item.Value.formula = val;
+                        exd.Set(item.row, item.col, val);
                 };
-                wbf.Text = String.Format("Обработано ячеек {0}/{1}", processed, exd.data.Count);
-                wbf.Percent = (float)(100.0 * (float)processed / (float)exd.data.Count);                
+                wbf.Text = String.Format("Обработано ячеек {0}/{1}", processed, exd.FilledCount);
+                wbf.Percent = (float)(100.0 * (float)processed / (float)exd.FilledCount);
             };
 
             wbf.Hide();
@@ -282,13 +552,19 @@ namespace exceltools
 
     public static class UTILS_DKXCE
     {
+        /// <summary>
+        ///     Get Length between 2 points lat,lon
+        /// </summary>
+        /// <param name="exd">Excel Data</param>
+        /// <returns>computed cells</returns>
         public static int GetLengthBetween2Points(ref ExcelData exd)
         {
             if ((exd.Width < 2) || (exd.Width > 3))
             {
-                MessageBox.Show("Число столбцов может быть 2 или 3!\r\nВ правый столбец будет выведено расстояние в метрах!");
+                MessageBox.Show("Число столбцов может быть 2 или 3!\r\nВ правый столбец будет выведено расстояние в метрах!", "GetLengthBetween2Points");
                 return 0;
             };
+            exd.ResetChanged();
             if (exd.Width == 2) return GetLengthBetween2Points2(ref exd);
             if (exd.Width == 3) return GetLengthBetween2Points3(ref exd);
             return 0;
@@ -298,7 +574,7 @@ namespace exceltools
         {
             KMZRebuilder.WaitingBoxForm wbf = new KMZRebuilder.WaitingBoxForm();
             wbf.Show("Script: GetLengthBetween2Points", "Загрузка");
-            wbf.Text = String.Format("Обработано точек {0}/{1}", 0, exd.data.Count);
+            wbf.Text = String.Format("Обработано точек {0}/{1}", 0, exd.FilledCount);
 
             Regex ex = new Regex(@"^(?<lat>[+-]?[\d.]*),(?<lon>[+-]?[\d.]*)$");
             int processed = 1;
@@ -335,8 +611,8 @@ namespace exceltools
                         exd.Set(x, exd.MinY + 1, "0");
                 };
 
-                wbf.Text = String.Format("Обработано точек {0}/{1}", processed, exd.data.Count);
-                wbf.Percent = (float)(100.0 * (float)processed / (float)exd.data.Count);
+                wbf.Text = String.Format("Обработано точек {0}/{1}", processed, exd.FilledCount);
+                wbf.Percent = (float)(100.0 * (float)processed / (float)exd.FilledCount);
             };
 
             wbf.Hide();
@@ -348,7 +624,7 @@ namespace exceltools
         {
             KMZRebuilder.WaitingBoxForm wbf = new KMZRebuilder.WaitingBoxForm();
             wbf.Show("Script: GetLengthBetween2Points", "Загрузка");
-            wbf.Text = String.Format("Обработано точек {0}/{1}", 0, exd.data.Count);
+            wbf.Text = String.Format("Обработано точек {0}/{1}", 0, exd.FilledCount);
 
             Regex ex = new Regex(@"^(?<lat>[+-]?[\d.]*),(?<lon>[+-]?[\d.]*)$");
             int processed = 0;
@@ -382,13 +658,13 @@ namespace exceltools
                     };
                 };
 
-                wbf.Text = String.Format("Обработано точек {0}/{1}", processed, exd.data.Count);
-                wbf.Percent = (float)(100.0 * (float)processed / (float)exd.data.Count);
+                wbf.Text = String.Format("Обработано точек {0}/{1}", processed, exd.FilledCount);
+                wbf.Percent = (float)(100.0 * (float)processed / (float)exd.FilledCount);
             };            
 
             wbf.Hide();
             wbf = null;
-            return processed;
+            return processed * 2;
         }
 
         private static uint GetLengthMetersC(double StartLat, double StartLong, double EndLat, double EndLong, bool radians)
