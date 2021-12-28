@@ -24,3 +24,6 @@ Repository contains full working example. MSVS solutions, Excel file and Macro.
   - Для расстояния: можно выделить диапазон из трех столбцов - в этом случае в правый (3-ий) столбец заносится расстояние между 1-ым и 2-ым столбцами
 
 [Библиотека и файл с макросом](https://github.com/dkxce/DLL-for-EXCEL-Macros/tree/main/debug)
+
+<img src="sample_01.png"/>
+<img src="sample_02.png"/>
