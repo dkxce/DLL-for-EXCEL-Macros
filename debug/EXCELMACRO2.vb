@@ -458,6 +458,20 @@ Function GetChangedRange() As String
     End If
 End Function
   
+Function SetExcelFileName() As Integer
+' Method 19 - Установка имени файла документа Excel
+    SetExcelFileName = -1
+    If handle <> 0 Then
+        address = GetProcAddress(handle, "SetExcelFileName") ' получаем адрес функции
+        If address <> 0 Then ' успешное получение адреса
+            address = CallWindowProc(address, StrPtr(ActiveWorkbook.FullName), ByVal 0&, ByVal 0&, ByVal 0&)
+            SetExcelFileName = CInt(address)
+        ElseIf address = 0 Then ' ошибка при получении адреса
+            Exit Function
+        End If
+    End If
+End Function
+  
 Sub test__Load__Library()
 ' Проверка загрузки библиотеки
     LoadLib ' Загрузка библиотеки
@@ -524,6 +538,7 @@ Sub Select_And_Run_Script_from_DLL()
     End If
     
     LoadLib ' Загрузка библиотеки
+    SetExcelFileName '  Установка имени файла документа
     ClearData ' Очистка ячеек в библиотеке
                
     ' Запись значений из выбранных ячеек в библиотеку

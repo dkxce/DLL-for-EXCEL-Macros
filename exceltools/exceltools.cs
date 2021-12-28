@@ -24,7 +24,7 @@ namespace exceltools
 {
     internal static class UnmanagedExports
     {
-        private static string LIBNAME = "Excel Tools by Milok Zbrozek <milokz@gmail.com> " + (IntPtr.Size == 4 ? "x86" : "x64") + " v21.12.27.7";
+        private static string LIBNAME = "Excel Tools by Milok Zbrozek <milokz@gmail.com> " + (IntPtr.Size == 4 ? "x86" : "x64") + " v21.12.28.8";
         private static string CALLER = "Unknown";
 
         #region __cdelc
@@ -90,7 +90,8 @@ namespace exceltools
                 "SelectAndRunScript", // 15
                 "GetMinMax", // 16
                 "GetFilledRange", // 17
-                "GetChangedRange" // 18
+                "GetChangedRange", // 18
+                "SetExcelFileName" //19
             };
 
         /// <summary>
@@ -421,7 +422,7 @@ namespace exceltools
         /// <param name="ptr">Pointer To Unicode String (max len: 65000)</param>
         /// <returns>string length</returns>
         [DllExport("GetChangedRange", CallingConvention = CallingConvention.Cdecl)]
-        public static int GetChangedRange(IntPtr ptr) // METHOD 17
+        public static int GetChangedRange(IntPtr ptr) // METHOD 18
         {
             int[] bounds = exd.GetChangedBounds();
             string val = String.Format("{0}{1}:{2}{3}", ExcelData.RCItem.ColumnIndex(bounds[2]), bounds[0], ExcelData.RCItem.ColumnIndex(bounds[3]), bounds[1]);
@@ -429,6 +430,20 @@ namespace exceltools
             Marshal.Copy(b, 0, ptr, b.Length);
             return val.Length;
         }
+
+        /// <summary>
+        ///     Set Excel File Name
+        /// </summary>
+        /// <param name="fileName">fileName</param>
+        /// <returns>zero</returns>
+        [DllExport("SetExcelFileName", CallingConvention = CallingConvention.Cdecl)]
+        public static int SetExcelFileName([MarshalAs(UnmanagedType.BStr)] string fileName)  // METHOD 19
+        {
+            exd.FileName = fileName;
+            MessageBox.Show(fileName);
+            return 0;
+        }
+
 
         private static int RunScriptInt(string methodName)
         {

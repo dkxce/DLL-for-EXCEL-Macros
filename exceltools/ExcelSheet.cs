@@ -122,6 +122,7 @@ namespace exceltools
         private uint MaxRow = 0;
         private uint MinCol = 0;
         private uint MaxCol = 0;
+        private string fileName;
 
         private Dictionary<ulong, ValueFormula> data = new Dictionary<ulong, ValueFormula>();
         private List<ulong> filled = new List<ulong>();
@@ -133,6 +134,7 @@ namespace exceltools
         public int MaxY { get { return (int)MaxCol; } }
         public int Width { get { return (int)(MaxCol == 0 ? 0 : MaxCol - MinCol + 1); } }
         public int Height { get { return (int)(MaxRow == 0 ? 0 : MaxRow - MinRow + 1); } }
+        public string FileName { get { return fileName; } set { fileName = value; } }
 
         /// <summary>
         ///     Clear Cells
