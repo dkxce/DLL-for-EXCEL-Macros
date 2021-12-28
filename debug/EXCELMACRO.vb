@@ -99,6 +99,14 @@ Function GetPredefindedLengthString() As String
     Next i
 End Function
 
+Function EnlargeString(str As String)
+    EnlargeString = str
+    Do While Len(EnlargeString) < 6500
+       EnlargeString = EnlargeString & "0000000000"
+    Loop
+End Function
+
+
  
 Function GetLibName() As String
 ' Method 0 - Внутреннее имя библиотеки
@@ -472,6 +480,27 @@ Function SetExcelFileName() As Integer
     End If
 End Function
 
+Function CallTextFunction(ByVal funcName As String, ByVal paramValue As String) As String
+' Method 20 - Вызов текстовых функций из DLL
+' Поддерживаемые функции:
+'   GetTime, GetDate, GetDateTime, Random, Random(max)
+    CallTextFunction = ""
+    If handle <> 0 Then
+        address = GetProcAddress(handle, "CallTextFunction") ' получаем адрес функции
+        If address <> 0 Then ' успешное получение адреса
+            Dim result As String
+            result = funcName & ":" & paramValue
+            Dim sLength As Integer
+            sLength = Len(result)
+            result = EnlargeString(result)
+            address = CallWindowProc(address, ByVal StrPtr(result), ByVal sLength, ByVal 0&, ByVal 0&)
+            CallTextFunction = Left(result, CInt(address))
+        ElseIf address = 0 Then ' ошибка при получении адреса
+            Exit Function
+        End If
+    End If
+End Function
+
   
 Sub test__Load__Library()
 ' Проверка загрузки библиотеки
@@ -524,6 +553,8 @@ Sub test__DLL__Methods()
     MsgBox "Method 16: " & Bounds(0) & " - " & Bounds(1) & " - " & Bounds(2) & " - " & Bounds(3) ' Method 16
     MsgBox "Method 17: " & GetFilledRange ' Method 17
     MsgBox "Method 18: " & GetChangedRange ' Method 18
+    MsgBox "Method 19: " & SetExcelFileName ' Method 19
+    MsgBox "Method 20: Random: " & CallTextFunction("Random", "100") ' GetTime, GetDate, GetDateTime, Random
 End Sub
 
 
